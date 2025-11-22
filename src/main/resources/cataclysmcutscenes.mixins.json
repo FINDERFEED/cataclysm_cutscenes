@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.finderfeed.cataclysm_custscenes.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "CursedTombstoneMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
