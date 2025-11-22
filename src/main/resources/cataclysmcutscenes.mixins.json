@@ -3,7 +3,8 @@
   "package": "com.finderfeed.cataclysm_custscenes.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "CursedTombstoneMixin"
+    "CursedTombstoneMixin",
+    "MaledictusEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
