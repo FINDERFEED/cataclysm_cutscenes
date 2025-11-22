@@ -26,7 +26,7 @@ public class CatCutDebugStick extends Item {
 
         if (level instanceof ServerLevel serverLevel && usedHand == InteractionHand.MAIN_HAND){
 
-            MaledictusCutsceneEntity.summon(level, player.position().add(40,0,0),new Vec3(0,0,1), player.getOnPos(), Direction.EAST);
+            MaledictusCutsceneEntity.summon(level, player.position().add(40,0,0),new Vec3(-1,0,0), player.getOnPos(), Direction.EAST);
 
         }
 

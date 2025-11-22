@@ -1,17 +1,20 @@
 package com.finderfeed.cataclysm_custscenes.entities.maledictus;
 
+import com.finderfeed.cataclysm_custscenes.CatCutUtil;
 import com.finderfeed.cataclysm_custscenes.CataclysmCutscenes;
-import com.finderfeed.fdlib.FDLibCalls;
 import com.finderfeed.fdlib.init.FDScreenEffects;
 import com.finderfeed.fdlib.nbt.AutoSerializable;
 import com.finderfeed.fdlib.nbt.SerializableField;
 import com.finderfeed.fdlib.systems.cutscenes.CameraPos;
-import com.finderfeed.fdlib.systems.cutscenes.CurveType;
 import com.finderfeed.fdlib.systems.cutscenes.CutsceneData;
 import com.finderfeed.fdlib.systems.cutscenes.EasingType;
 import com.finderfeed.fdlib.systems.screen.screen_effect.instances.datas.ScreenColorData;
 import com.finderfeed.fdlib.util.ProjectileMovementPath;
+import com.github.L_Ender.cataclysm.config.CMConfig;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
+import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
+import com.github.L_Ender.cataclysm.init.ModEntities;
+import com.github.L_Ender.cataclysm.init.ModSounds;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,12 +23,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -85,7 +93,9 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
         level.addFreshEntity(maledictus);
 
 
-        FDLibCalls.startCutsceneForPlayers((ServerLevel) level, pos, 50, createCutsceneData(pos, direction));
+        float cutsceneStartRadius = 50;
+        CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, cutsceneStartRadius, 200, createCutsceneData(pos, direction));
+
 
         return maledictus;
     }
@@ -146,7 +156,7 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
 
         CutsceneData cutsceneData8 = CutsceneData.create().addCameraPos(lastCamera).time(20);
-        cutsceneData8.addScreenEffect(0, FDScreenEffects.SCREEN_COLOR,new ScreenColorData(0,0,0,1f),20,0,20);
+        cutsceneData8.addScreenEffect(0, FDScreenEffects.SCREEN_COLOR,new ScreenColorData(0,0,0,1f),20,20,20);
 
 
         cutsceneData.nextCutscene(cutsceneData1
@@ -211,14 +221,46 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
         //5 - end jump
 
         if (afterStartFlyTick >= 0) {
-            if (afterStartFlyTick == 10) {
+
+
+            if (afterStartFlyTick >= 22 && afterStartFlyTick <= 25){
+                if (afterStartFlyTick == 22){
+                    level().playSound(null,this.getX(),this.getY(),this.getZ(),  ModSounds.EXPLOSION.get(), SoundSource.HOSTILE, 2F, 0.75F + this.getRandom().nextFloat() * 0.1F);
+                }
+                this.smashEffect(2, afterStartFlyTick - 21, 2.5f);
+            }
+
+
+            if (afterStartFlyTick == 0) {
+//                level().playSound(null,this.getX(),this.getY(),this.getZ(),  ModSounds.MALEDICTUS_MACE_SWING.get(), SoundSource.HOSTILE, 3F, 1f);
+            }else if (afterStartFlyTick == 10) {
+
+                level().playSound(null,this.getX(),this.getY(),this.getZ(),  ModSounds.MALEDICTUS_BATTLE_CRY.get(), SoundSource.HOSTILE, 3F, 1f);
                 this.setAttackState(19);
             } else if (afterStartFlyTick == 20) {
                 this.setAttackState(25);
             } else if (afterStartFlyTick == 100) {
                 this.setAttackState(0);
+            }else if (afterStartFlyTick >= 140){
+
+                Maledictus_Entity maledictus = ModEntities.MALEDICTUS.get().create(level());
+
+                maledictus.setPos(this.getX(),this.getY(),this.getZ());
+                maledictus.setHomePos(this.getHomePos());
+                maledictus.setTombstonePos(this.getHomePos());
+                maledictus.setTombstoneDirection(this.getTombstoneDirection());
+                ResourceLocation dimLoc = level().dimension().location();
+                maledictus.setDimensionType(dimLoc.toString());
+
+                level().addFreshEntity(maledictus);
+
+                this.setRemoved(RemovalReason.DISCARDED);
             }
         }else{
+            if (tickCount == 30){
+
+                level().playSound(null,this.getX(),this.getY(),this.getZ(),  ModSounds.MALEDICTUS_MACE_SWING.get(), SoundSource.HOSTILE, 3F, 1f);
+            }
             this.setAttackState(24);
         }
 
@@ -349,6 +391,44 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
     @Override
     protected void ReturnToHome() {
+
+    }
+
+    // Code is copied from Maledictus_Entity, because its private
+    public void smashEffect(float spreadarc, int distance, float vec) {
+        double perpFacing = (double)this.yBodyRot * 0.017453292519943295;
+        double facingAngle = perpFacing + 1.5707963267948966;
+        int hitY = Mth.floor(this.getBoundingBox().minY - 0.5);
+        double spread = Math.PI * (double)spreadarc;
+        int arcLen = Mth.ceil((double)distance * spread);
+
+        for(int i = 0; i < arcLen; ++i) {
+            double theta = ((double)i / ((double)arcLen - 1.0) - 0.5) * spread + facingAngle;
+            double vx = Math.cos(theta);
+            double vz = Math.sin(theta);
+            double px = this.getX() + vx * (double)distance + (double)vec * Math.cos((double)(this.yBodyRot + 90.0F) * Math.PI / 180.0);
+            double pz = this.getZ() + vz * (double)distance + (double)vec * Math.sin((double)(this.yBodyRot + 90.0F) * Math.PI / 180.0);
+            int hitX = Mth.floor(px);
+            int hitZ = Mth.floor(pz);
+            BlockPos pos = new BlockPos(hitX, hitY, hitZ);
+            BlockState block = this.level().getBlockState(pos);
+            int maxDepth = 30;
+
+            for(int depthCount = 0; depthCount < maxDepth && block.getRenderShape() != RenderShape.MODEL; ++depthCount) {
+                pos = pos.below();
+                block = this.level().getBlockState(pos);
+            }
+
+            if (block.getRenderShape() != RenderShape.MODEL) {
+                block = Blocks.AIR.defaultBlockState();
+            }
+
+            if (!this.level().isClientSide) {
+                Cm_Falling_Block_Entity fallingBlockEntity = new Cm_Falling_Block_Entity(this.level(), (double)hitX + 0.5, (double)hitY + 1.0, (double)hitZ + 0.5, block, 10);
+                fallingBlockEntity.push(0.0, 0.2 + this.getRandom().nextGaussian() * 0.15, 0.0);
+                this.level().addFreshEntity(fallingBlockEntity);
+            }
+        }
 
     }
 
