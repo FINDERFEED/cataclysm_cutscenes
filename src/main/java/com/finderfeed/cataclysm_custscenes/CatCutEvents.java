@@ -1,20 +1,17 @@
 package com.finderfeed.cataclysm_custscenes;
 
 
+import com.finderfeed.cataclysm_custscenes.entities.ancient_remnant.IgnisCutsceneEntity;
 import com.finderfeed.fdlib.util.FDTargetFinder;
+import com.github.L_Ender.cataclysm.entity.AnimationMonster.BossMonsters.Ignis_Entity;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.Targeting;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.HashMap;
@@ -72,6 +69,7 @@ public class CatCutEvents {
     @SubscribeEvent
     public static void entityAttributes(EntityAttributeCreationEvent event){
         event.put(CataclysmCutscenes.MALEDICTUS_CUTSCENE.get(), Maledictus_Entity.maledictus().build());
+        event.put(CataclysmCutscenes.IGNIS_CUTSCENE_ENTITY.get(), Ignis_Entity.ignis().build());
     }
 
 }

@@ -1,5 +1,6 @@
 package com.finderfeed.cataclysm_custscenes;
 
+import com.finderfeed.cataclysm_custscenes.entities.ancient_remnant.IgnisCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.maledictus.MaledictusCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.items.CatCutDebugStick;
 import com.mojang.serialization.Codec;
@@ -7,32 +8,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.*;
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 import java.util.function.Supplier;
 
@@ -59,6 +40,12 @@ public class CataclysmCutscenes {
             )
             .sized(1f,1f)
             .build("maledictus_cutscene"));
+
+    public static final Supplier<EntityType<IgnisCutsceneEntity>> IGNIS_CUTSCENE_ENTITY = ENTITIES.register("ignis_cutscene", ()-> EntityType.Builder.of(
+                    IgnisCutsceneEntity::new, MobCategory.MISC
+            )
+            .sized(1f,1f)
+            .build("ignis_cutscene"));
 
 
 
