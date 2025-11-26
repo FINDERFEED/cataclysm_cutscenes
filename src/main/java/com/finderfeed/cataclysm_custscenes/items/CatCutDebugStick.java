@@ -1,6 +1,7 @@
 package com.finderfeed.cataclysm_custscenes.items;
 
-import com.finderfeed.cataclysm_custscenes.entities.ancient_remnant.IgnisCutsceneEntity;
+import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntity;
+import com.finderfeed.cataclysm_custscenes.entities.scylla.ScyllaCutsceneEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -19,7 +20,7 @@ public class CatCutDebugStick extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
 
         if (level instanceof ServerLevel serverLevel && usedHand == InteractionHand.MAIN_HAND){
-            IgnisCutsceneEntity.summon(level, player.position());
+            ScyllaCutsceneEntity.summon(level, player.position());
         }
 
         return super.use(level, player, usedHand);

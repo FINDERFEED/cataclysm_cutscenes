@@ -1,4 +1,4 @@
-package com.finderfeed.cataclysm_custscenes.entities.ancient_remnant;
+package com.finderfeed.cataclysm_custscenes.entities.ignis;
 
 import com.finderfeed.cataclysm_custscenes.CatCutUtil;
 import com.finderfeed.cataclysm_custscenes.CataclysmCutscenes;

@@ -1,7 +1,8 @@
 package com.finderfeed.cataclysm_custscenes;
 
-import com.finderfeed.cataclysm_custscenes.entities.ancient_remnant.IgnisCutsceneEntity;
+import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.maledictus.MaledictusCutsceneEntity;
+import com.finderfeed.cataclysm_custscenes.entities.scylla.ScyllaCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.items.CatCutDebugStick;
 import com.mojang.serialization.Codec;
 import net.minecraft.world.entity.EntityType;
@@ -46,6 +47,12 @@ public class CataclysmCutscenes {
             )
             .sized(1f,1f)
             .build("ignis_cutscene"));
+
+    public static final Supplier<EntityType<ScyllaCutsceneEntity>> SCYLLA_CUTSCENE_ENTITY = ENTITIES.register("scylla_cutscene", ()-> EntityType.Builder.of(
+                    ScyllaCutsceneEntity::new, MobCategory.MISC
+            )
+            .sized(1f,1f)
+            .build("scylla_cutscene"));
 
 
 

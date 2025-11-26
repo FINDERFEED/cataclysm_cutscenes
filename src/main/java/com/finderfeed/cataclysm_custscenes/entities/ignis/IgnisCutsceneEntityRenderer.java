@@ -1,8 +1,6 @@
-package com.finderfeed.cataclysm_custscenes.entities.ancient_remnant;
+package com.finderfeed.cataclysm_custscenes.entities.ignis;
 
-import com.github.L_Ender.cataclysm.client.render.entity.Ancient_Remnant_Renderer;
 import com.github.L_Ender.cataclysm.client.render.entity.Ignis_Renderer;
-import com.github.L_Ender.cataclysm.entity.AnimationMonster.BossMonsters.Ancient_Ancient_Remnant_Entity;
 import com.github.L_Ender.cataclysm.entity.AnimationMonster.BossMonsters.Ignis_Entity;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
