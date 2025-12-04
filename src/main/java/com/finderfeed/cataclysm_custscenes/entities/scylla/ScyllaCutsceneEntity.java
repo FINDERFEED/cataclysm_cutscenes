@@ -18,6 +18,8 @@ import com.github.L_Ender.cataclysm.config.CMConfig;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Scylla.Scylla_Ceraunus_Entity;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Scylla.Scylla_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
+import com.github.L_Ender.cataclysm.init.ModEntities;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -48,15 +50,33 @@ import java.util.List;
 
 public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializable {
 
-    private static final Logger log = LoggerFactory.getLogger(ScyllaCutsceneEntity.class);
-
-    public static void summon(Level level, Vec3 pos){
+    public static void summon(Level level, Vec3 pos, BlockPos homePos){
 
         ScyllaCutsceneEntity entity = new ScyllaCutsceneEntity(CataclysmCutscenes.SCYLLA_CUTSCENE_ENTITY.get(), level);
 
+        entity.setHomePos(homePos);
+
         entity.setPos(pos);
 
-        CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, 40, 300, createCutscene(pos));
+        var affected = CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, 40, 300, createCutscene(pos));
+
+        var inSurvival = affected.stream().filter((player)->{
+            return !player.isCreative() && !player.isSpectator();
+        }).toList();
+
+        for (int i = 0; i < inSurvival.size(); i++){
+
+            var player = inSurvival.get(i);
+            int md = i % 2 == 0 ? 1 : -1;
+
+            int offsetX = i / 2;
+
+            Vec3 v = new Vec3(md * (23 + offsetX * 2),2,0).add(pos);
+
+            player.teleportTo(v.x,v.y,v.z);
+            player.lookAt(EntityAnchorArgument.Anchor.FEET,pos.add(0,1,0));
+
+        }
 
         level.addFreshEntity(entity);
 
@@ -159,14 +179,6 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
 
             this.tickCutscene();
 
-            //                Scylla_Ceraunus_Entity scyllaAnchor = new Scylla_Ceraunus_Entity(this.level(), this);
-//
-//                Vec3 look = this.getLookAngle();
-//
-//                scyllaAnchor.setControllerUUID(this.getUUID());
-//                scyllaAnchor.shoot(look.x,look.y + 0.5,look.z, 2f, 0.0f);
-//                this.setAnchorUUID(scyllaAnchor.getUUID());
-//                level().addFreshEntity(scyllaAnchor);
 
         }
 
@@ -301,8 +313,14 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
 
 
 
-        if (tickCount >= 250){
+        if (tickCount >= 200){
+            Scylla_Entity scyllaEntity = ModEntities.SCYLLA.get().create(level());
+            scyllaEntity.setPos(this.position());
+            scyllaEntity.setHomePos(this.getHomePos());
+            scyllaEntity.setDimensionType(level().dimension().location().toString());
             this.remove(RemovalReason.DISCARDED);
+            scyllaEntity.setAct(true);
+            level().addFreshEntity(scyllaEntity);
         }
 
     }

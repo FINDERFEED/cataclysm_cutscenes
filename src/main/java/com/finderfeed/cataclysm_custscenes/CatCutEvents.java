@@ -13,6 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
+import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -65,6 +66,16 @@ public class CatCutEvents {
     public static void targetEvent(LivingChangeTargetEvent event){
         if (event.getNewAboutToBeSetTarget() instanceof ServerPlayer serverPlayer && isPlayerInvulnerable(serverPlayer)){
             event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void airEvent(LivingBreatheEvent event){
+        if (event.getEntity() instanceof ServerPlayer serverPlayer){
+            if (isPlayerInvulnerable(serverPlayer)){
+                event.setConsumeAirAmount(0);
+                serverPlayer.setAirSupply(ServerPlayer.TOTAL_AIR_SUPPLY);
+            }
         }
     }
 

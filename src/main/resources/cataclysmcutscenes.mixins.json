@@ -7,7 +7,8 @@
     "AltarOfFireBlockEntityMixin",
     "AncientRemnantMixin",
     "CursedTombstoneMixin",
-    "MaledictusEntityMixin"
+    "MaledictusEntityMixin",
+    "ScyllaEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

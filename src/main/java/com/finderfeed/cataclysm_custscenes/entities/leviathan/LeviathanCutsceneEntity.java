@@ -46,11 +46,11 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
         leviathanCutsceneEntity.setHomePos(homePos);
         leviathanCutsceneEntity.setDimensionType(level.dimension().location().toString());
 
-        Vec3 cutsceneEntityPos = leviathanCutsceneEntity.calculateSwimmingPos(0,200);
+        Vec3 cutsceneEntityPos = leviathanCutsceneEntity.calculateSwimmingPos(0,220);
         leviathanCutsceneEntity.setPos(cutsceneEntityPos);
 
         CutsceneData cutsceneData = cutsceneData(pos);
-        var affected = CatCutUtil.startCutsceneForPlayersCylinder((ServerLevel) level, pos, 30, 60,200, cutsceneData);
+        var affected = CatCutUtil.startCutsceneForPlayersCylinder((ServerLevel) level, pos.add(0,-10,0), 30, 60,300, cutsceneData);
 
 
         var inSurvival = affected.stream().filter((player)->{
