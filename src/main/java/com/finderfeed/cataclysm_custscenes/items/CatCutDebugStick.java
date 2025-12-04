@@ -24,7 +24,7 @@ public class CatCutDebugStick extends Item {
 
         if (level instanceof ServerLevel serverLevel && usedHand == InteractionHand.MAIN_HAND){
 //            ScyllaCutsceneEntity.summon(level, player.position());
-            AncientRemnantCutsceneEntity.summon(level, player.position());
+            AncientRemnantCutsceneEntity.summon(level, player.position(), player.getOnPos());
 //            var test = new Ancient_Desert_Stele_Entity(level, player.getX(),player.getY(),player.getZ(), 10, 20, 10, player);
 //            level.addFreshEntity(test);
         }

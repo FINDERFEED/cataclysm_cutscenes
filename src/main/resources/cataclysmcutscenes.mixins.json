@@ -5,6 +5,7 @@
   "mixins": [
     "AltarOfAbyssBlockEntityMixin",
     "AltarOfFireBlockEntityMixin",
+    "AncientRemnantMixin",
     "CursedTombstoneMixin",
     "MaledictusEntityMixin"
   ],

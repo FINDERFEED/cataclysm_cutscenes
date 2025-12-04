@@ -16,7 +16,9 @@ import com.finderfeed.fdlib.util.FDTargetFinder;
 import com.finderfeed.fdlib.util.math.FDMathUtil;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Ancient_Remnant.Ancient_Remnant_Entity;
 import com.github.L_Ender.cataclysm.entity.projectile.Ancient_Desert_Stele_Entity;
+import com.github.L_Ender.cataclysm.init.ModEntities;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -29,6 +31,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -41,9 +44,11 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
     @SerializableField
     private Vec3 cutsceneDirection;
 
-    public static void summon(Level level, Vec3 pos){
+    public static void summon(Level level, Vec3 pos, BlockPos homePos){
 
         AncientRemnantCutsceneEntity cutsceneEntity = new AncientRemnantCutsceneEntity(CataclysmCutscenes.ANCIENT_REMNANT_CUTSCENE.get(), level);
+
+        cutsceneEntity.setHomePos(homePos);
 
         cutsceneEntity.setPos(pos);
 
@@ -56,11 +61,34 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
         cutsceneEntity.cutsceneDirection = cutsceneDirection;
 
         var cutscene = cutsceneData(pos, cutsceneDirection);
-        CatCutUtil.startCutsceneForPlayersCylinder((ServerLevel) level, pos.add(0,-10,0).add(cutsceneDirection.scale(30)),40, 35, 200, cutscene);
+        var affected = CatCutUtil.startCutsceneForPlayersCylinder((ServerLevel) level, pos.add(0,-10,0).add(cutsceneDirection.scale(30)),40, 35, 200, cutscene);
+
+        var inSurvival = affected.stream().filter((player)->{
+            return true || !player.isCreative() && !player.isSpectator();
+        }).toList();
+
+        for (int i = 0; i < inSurvival.size(); i++){
+
+            int md = i % 2 == 0 ? 1 : -1;
+
+            Vec3 v = pos.add(0,10,0).add(cutsceneDirection.scale(30))
+                    .add(cutsceneDirection.yRot(FDMathUtil.FPI / 2).scale(md * ((i + 2) / 2)));
+            ClipContext clipContext = new ClipContext(v,v.add(0,-50,0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
+            var result = level.clip(clipContext);
+            if (result.getType() != HitResult.Type.MISS && result.getLocation().distanceTo(v) > 1){
+                var player = inSurvival.get(i);
+                var loc = result.getLocation();
+                player.teleportTo(loc.x,loc.y,loc.z);
+                player.lookAt(EntityAnchorArgument.Anchor.FEET, pos);
+            }
+
+        }
 
         level.addFreshEntity(cutsceneEntity);
 
     }
+
+
 
     public static CutsceneData cutsceneData(Vec3 pos, Vec3 cutsceneDirection){
         CutsceneData data = CutsceneData.create()
@@ -200,8 +228,14 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
             }
         }
 
-        if (tickCount >= 200){
+        if (tickCount >= 180){
             this.remove(RemovalReason.DISCARDED);
+            Ancient_Remnant_Entity ancientRemnantEntity = ModEntities.ANCIENT_REMNANT.get().create(level());
+            ancientRemnantEntity.setHomePos(this.getHomePos());
+            ancientRemnantEntity.setDimensionType(level().dimension().location().toString());
+            ancientRemnantEntity.setPos(this.position());
+            ancientRemnantEntity.setNecklace(true);
+            level().addFreshEntity(ancientRemnantEntity);
         }
 
     }

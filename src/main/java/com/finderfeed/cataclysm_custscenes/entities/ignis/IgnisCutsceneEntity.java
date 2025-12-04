@@ -69,7 +69,7 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
         var affected = CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, 60, 300, createCutsceneData(pos));
 
         var inSurvival = affected.stream().filter((player)->{
-            return true || !player.isCreative() && !player.isSpectator();
+            return !player.isCreative() && !player.isSpectator();
         }).toList();
 
         for (int i = 0; i < inSurvival.size(); i++){
