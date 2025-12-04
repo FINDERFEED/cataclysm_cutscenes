@@ -3,6 +3,8 @@
   "package": "com.finderfeed.cataclysm_custscenes.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AltarOfAbyssBlockEntityMixin",
+    "AltarOfFireBlockEntityMixin",
     "CursedTombstoneMixin",
     "MaledictusEntityMixin"
   ],

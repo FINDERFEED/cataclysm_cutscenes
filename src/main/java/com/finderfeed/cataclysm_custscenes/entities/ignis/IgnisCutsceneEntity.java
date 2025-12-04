@@ -19,9 +19,11 @@ import com.finderfeed.fdlib.util.ProjectileMovementPath;
 import com.finderfeed.fdlib.util.math.FDMathUtil;
 import com.finderfeed.fdlib.util.rendering.FDEasings;
 import com.github.L_Ender.cataclysm.entity.AnimationMonster.BossMonsters.Ignis_Entity;
+import com.github.L_Ender.cataclysm.init.ModEntities;
 import com.github.L_Ender.cataclysm.init.ModSounds;
 import com.github.L_Ender.lionfishapi.server.animation.AnimationHandler;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -50,16 +52,37 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
     private ProjectileMovementPath movementPath;
 
     //Altar relative
-    public static IgnisCutsceneEntity summon(Level level, Vec3 pos){
+    public static IgnisCutsceneEntity summon(Level level, Vec3 pos, BlockPos homePos){
+
+        pos = pos.add(0,0.5,0);
+
         IgnisCutsceneEntity cutsceneEntity = new IgnisCutsceneEntity(CataclysmCutscenes.IGNIS_CUTSCENE_ENTITY.get(), level);
 
         cutsceneEntity.setPos(pos.add(0,5,0));
 
         cutsceneEntity.movementPath = createPath(pos);
 
+        cutsceneEntity.setHomePos(homePos);
+
         cutsceneEntity.lookAt(EntityAnchorArgument.Anchor.FEET, pos.add(0,0,-100));
 
-        CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, 60, 300, createCutsceneData(pos));
+        var affected = CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, 60, 300, createCutsceneData(pos));
+
+        var inSurvival = affected.stream().filter((player)->{
+            return true || !player.isCreative() && !player.isSpectator();
+        }).toList();
+
+        for (int i = 0; i < inSurvival.size(); i++){
+
+            float p = ((float) i / inSurvival.size());
+            float angle = FDMathUtil.FPI * 2f * p;
+            Vec3 optimalPos = pos.add(new Vec3(-20,0,0).yRot(angle));
+            ServerPlayer serverPlayer = inSurvival.get(i);
+            serverPlayer.teleportTo(optimalPos.x,optimalPos.y,optimalPos.z);
+            serverPlayer.lookAt(EntityAnchorArgument.Anchor.FEET, pos);
+
+        }
+
 
         level.addFreshEntity(cutsceneEntity);
 
@@ -212,6 +235,13 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
                 this.level().playSound(null, this.getX(),this.getY(),this.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 4f, 0.75f);
                 this.level().playSound(null, this.getX(),this.getY(),this.getZ(), SoundEvents.TOTEM_USE, SoundSource.HOSTILE, 4f, 0.75f);
                 this.level().playSound(null, this.getX(),this.getY(),this.getZ(), ModSounds.IGNIS_HURT, SoundSource.HOSTILE, 4f, 1f);
+            } else if (tickCount >= summoningRitualDuration + 155){
+                this.remove(RemovalReason.DISCARDED);
+                Ignis_Entity ignisEntity = ModEntities.IGNIS.get().create(level());
+                ignisEntity.setHomePos(this.getHomePos());
+                ignisEntity.setDimensionType(this.level().dimension().location().toString());
+                ignisEntity.setPos(this.position());
+                level().addFreshEntity(ignisEntity);
             }
 
             if (tickCount > summoningRitualDuration - 1){

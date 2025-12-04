@@ -10,9 +10,11 @@ import com.finderfeed.fdlib.systems.cutscenes.CutsceneData;
 import com.finderfeed.fdlib.systems.screen.screen_effect.instances.datas.ScreenColorData;
 import com.finderfeed.fdlib.util.math.FDMathUtil;
 import com.github.L_Ender.cataclysm.entity.AnimationMonster.BossMonsters.The_Leviathan.The_Leviathan_Entity;
+import com.github.L_Ender.cataclysm.init.ModEntities;
 import com.github.L_Ender.cataclysm.init.ModSounds;
 import com.github.L_Ender.lionfishapi.server.animation.AnimationHandler;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,10 +37,14 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
     @SerializableField
     private Vec3 summonedPos;
 
-    public static void summon(Level level, Vec3 pos){
+    public static void summon(Level level, Vec3 pos, BlockPos homePos){
+        pos = pos.add(0,4,0);
         LeviathanCutsceneEntity leviathanCutsceneEntity = new LeviathanCutsceneEntity(CataclysmCutscenes.LEVIATHAN_CUTSCENE.get(), level);
 
         leviathanCutsceneEntity.summonedPos = pos;
+
+        leviathanCutsceneEntity.setHomePos(homePos);
+        leviathanCutsceneEntity.setDimensionType(level.dimension().location().toString());
 
         Vec3 cutsceneEntityPos = leviathanCutsceneEntity.calculateSwimmingPos(0,200);
         leviathanCutsceneEntity.setPos(cutsceneEntityPos);
@@ -48,7 +54,7 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
 
 
         var inSurvival = affected.stream().filter((player)->{
-            return true;
+            return !player.isCreative() && !player.isSpectator();
         }).toList();
 
         for (int i = 0; i < inSurvival.size(); i++){
@@ -111,7 +117,7 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
 
         CutsceneData data1 = CutsceneData.create()
                 .time(40)
-                .addScreenEffect(20, FDScreenEffects.SCREEN_COLOR, new ScreenColorData(0,0,0,1),0,30,20)
+                .addScreenEffect(15, FDScreenEffects.SCREEN_COLOR, new ScreenColorData(0,0,0,1),0,30,20)
                 .addCameraPos(last)
                 ;
 
@@ -171,15 +177,24 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
             this.lookAt(EntityAnchorArgument.Anchor.FEET,this.position().add(deltaMovement.scale(100)));
 
         }else if (tickCount >= swimmingAroundTime + swimmingToCameraTime + 20){
-            this.remove(RemovalReason.DISCARDED);
+            this.removeAndSpawn();
         }else{
             this.setDeltaMovement(Vec3.ZERO);
         }
 
         if (tickCount > 300){
-            this.remove(RemovalReason.DISCARDED);
+            this.removeAndSpawn();
         }
 
+    }
+
+    private void removeAndSpawn(){
+        The_Leviathan_Entity leviathanEntity = ModEntities.THE_LEVIATHAN.get().create(level());
+        leviathanEntity.setHomePos(this.getHomePos());
+        leviathanEntity.setPos(this.summonedPos);
+        leviathanEntity.setDimensionType(level().dimension().location().toString());
+        this.remove(RemovalReason.DISCARDED);
+        level().addFreshEntity(leviathanEntity);
     }
 
     private Vec3 calculateSwimmingPos(int swimmingTick, int fullSwimTime){
