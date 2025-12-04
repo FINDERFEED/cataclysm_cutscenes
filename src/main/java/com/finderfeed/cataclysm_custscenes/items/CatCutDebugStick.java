@@ -2,6 +2,7 @@ package com.finderfeed.cataclysm_custscenes.items;
 
 import com.finderfeed.cataclysm_custscenes.entities.ancient_remnant.AncientRemnantCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntity;
+import com.finderfeed.cataclysm_custscenes.entities.leviathan.LeviathanCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.scylla.ScyllaCutsceneEntity;
 import com.github.L_Ender.cataclysm.entity.projectile.Ancient_Desert_Stele_Entity;
 import net.minecraft.server.level.ServerLevel;

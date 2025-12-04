@@ -2,6 +2,7 @@ package com.finderfeed.cataclysm_custscenes;
 
 import com.finderfeed.cataclysm_custscenes.entities.ancient_remnant.AncientRemnantCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntity;
+import com.finderfeed.cataclysm_custscenes.entities.leviathan.LeviathanCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.maledictus.MaledictusCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.scylla.ScyllaCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.items.CatCutDebugStick;
@@ -60,6 +61,12 @@ public class CataclysmCutscenes {
             )
             .sized(1f,1f)
             .build("ancient_remnant_cutscene"));
+
+    public static final Supplier<EntityType<LeviathanCutsceneEntity>> LEVIATHAN_CUTSCENE = ENTITIES.register("leviathan_cutscene", ()-> EntityType.Builder.of(
+                    LeviathanCutsceneEntity::new, MobCategory.MISC
+            )
+            .sized(1f,1f)
+            .build("leviathan_cutscene"));
 
 
 

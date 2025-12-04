@@ -2,6 +2,7 @@ package com.finderfeed.cataclysm_custscenes;
 
 import com.finderfeed.cataclysm_custscenes.entities.ancient_remnant.AncientRemnantCutsceneEntityRenderer;
 import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntityRenderer;
+import com.finderfeed.cataclysm_custscenes.entities.leviathan.LeviathanCutsceneEntityRenderer;
 import com.finderfeed.cataclysm_custscenes.entities.maledictus.MaledictusCutsceneEntityRenderer;
 import com.finderfeed.cataclysm_custscenes.entities.scylla.ScyllaCutsceneRenderer;
 import net.neoforged.api.distmarker.Dist;
@@ -18,6 +19,7 @@ public class CatCutClientEvents {
         event.registerEntityRenderer(CataclysmCutscenes.IGNIS_CUTSCENE_ENTITY.get(), IgnisCutsceneEntityRenderer::new);
         event.registerEntityRenderer(CataclysmCutscenes.SCYLLA_CUTSCENE_ENTITY.get(), ScyllaCutsceneRenderer::new);
         event.registerEntityRenderer(CataclysmCutscenes.ANCIENT_REMNANT_CUTSCENE.get(), AncientRemnantCutsceneEntityRenderer::new);
+        event.registerEntityRenderer(CataclysmCutscenes.LEVIATHAN_CUTSCENE.get(), LeviathanCutsceneEntityRenderer::new);
     }
 
 }

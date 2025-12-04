@@ -135,6 +135,7 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
 
             if (this.cutsceneDirection == null){
                 this.remove(RemovalReason.DISCARDED);
+                return;
             }
 
             this.tickCutscene();
