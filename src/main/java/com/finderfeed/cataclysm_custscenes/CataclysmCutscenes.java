@@ -1,5 +1,6 @@
 package com.finderfeed.cataclysm_custscenes;
 
+import com.finderfeed.cataclysm_custscenes.entities.ancient_remnant.AncientRemnantCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.maledictus.MaledictusCutsceneEntity;
 import com.finderfeed.cataclysm_custscenes.entities.scylla.ScyllaCutsceneEntity;
@@ -53,6 +54,12 @@ public class CataclysmCutscenes {
             )
             .sized(1f,1f)
             .build("scylla_cutscene"));
+
+    public static final Supplier<EntityType<AncientRemnantCutsceneEntity>> ANCIENT_REMNANT_CUTSCENE = ENTITIES.register("ancient_remnant_cutscene", ()-> EntityType.Builder.of(
+                    AncientRemnantCutsceneEntity::new, MobCategory.MISC
+            )
+            .sized(1f,1f)
+            .build("ancient_remnant_cutscene"));
 
 
 

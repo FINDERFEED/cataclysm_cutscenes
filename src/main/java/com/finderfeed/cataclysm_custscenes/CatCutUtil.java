@@ -16,5 +16,12 @@ public class CatCutUtil {
         }
     }
 
+    public static void startCutsceneForPlayersCylinder(ServerLevel serverLevel, Vec3 pos, float radius, float cylinderHeight, int invulnerabilityDuration, CutsceneData cutsceneData){
+        FDLibCalls.startCutsceneForPlayers(serverLevel, pos, radius, cutsceneData);
+        for (var player : FDTargetFinder.getEntitiesInCylinder(ServerPlayer.class, serverLevel, pos, cylinderHeight, radius)){
+            CatCutEvents.setPlayerInvulnerable(player, invulnerabilityDuration);
+        }
+    }
+
 
 }

@@ -4,6 +4,7 @@ package com.finderfeed.cataclysm_custscenes;
 import com.finderfeed.cataclysm_custscenes.entities.scylla.ScyllaCutsceneEntity;
 import com.finderfeed.fdlib.util.FDTargetFinder;
 import com.github.L_Ender.cataclysm.entity.AnimationMonster.BossMonsters.Ignis_Entity;
+import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Ancient_Remnant.Ancient_Remnant_Entity;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Mob;
@@ -71,6 +72,7 @@ public class CatCutEvents {
         event.put(CataclysmCutscenes.MALEDICTUS_CUTSCENE.get(), Maledictus_Entity.maledictus().build());
         event.put(CataclysmCutscenes.IGNIS_CUTSCENE_ENTITY.get(), Ignis_Entity.ignis().build());
         event.put(CataclysmCutscenes.SCYLLA_CUTSCENE_ENTITY.get(), ScyllaCutsceneEntity.scylla().build());
+        event.put(CataclysmCutscenes.ANCIENT_REMNANT_CUTSCENE.get(), Ancient_Remnant_Entity.maledictus().build());
     }
 
 }
