@@ -58,7 +58,7 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
 
         entity.setPos(pos);
 
-        var affected = CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, 40, 300, createCutscene(pos));
+        var affected = CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, 40, 220, createCutscene(pos));
 
         var inSurvival = affected.stream().filter((player)->{
             return !player.isCreative() && !player.isSpectator();

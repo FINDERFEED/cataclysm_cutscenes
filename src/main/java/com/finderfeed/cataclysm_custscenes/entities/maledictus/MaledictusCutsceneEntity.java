@@ -101,7 +101,7 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
         var affected = CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, cutsceneStartRadius, 200, createCutsceneData(pos, direction));
 
         var inSurvival = affected.stream().filter((player)->{
-            return true || !player.isCreative() && !player.isSpectator();
+            return !player.isCreative() && !player.isSpectator();
         }).toList();
 
         for (int i = 0; i < inSurvival.size(); i++){

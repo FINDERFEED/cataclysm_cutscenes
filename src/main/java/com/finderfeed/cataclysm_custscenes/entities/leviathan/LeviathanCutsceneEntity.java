@@ -54,7 +54,7 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
         leviathanCutsceneEntity.setPos(cutsceneEntityPos);
 
         CutsceneData cutsceneData = cutsceneData(pos);
-        var affected = CatCutUtil.startCutsceneForPlayersCylinder((ServerLevel) level, pos.add(0,-10,0), 30, 60,300, cutsceneData);
+        var affected = CatCutUtil.startCutsceneForPlayersCylinder((ServerLevel) level, pos.add(0,-10,0), 30, 60,170, cutsceneData);
 
 
         var inSurvival = affected.stream().filter((player)->{

@@ -66,7 +66,7 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
         var affected = CatCutUtil.startCutsceneForPlayersCylinder((ServerLevel) level, pos.add(0,-10,0).add(cutsceneDirection.scale(30)),40, 35, 200, cutscene);
 
         var inSurvival = affected.stream().filter((player)->{
-            return true || !player.isCreative() && !player.isSpectator();
+            return !player.isCreative() && !player.isSpectator();
         }).toList();
 
         for (int i = 0; i < inSurvival.size(); i++){
