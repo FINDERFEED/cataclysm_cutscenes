@@ -9,24 +9,26 @@ import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonste
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Mob;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
-import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
-import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.living.LivingBreatheEvent;
+import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
 
-@EventBusSubscriber(modid = CataclysmCutscenes.MODID)
+@Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CatCutEvents {
 
     private static HashMap<ServerPlayer, Integer> PLAYER_INVULNERABILITY = new HashMap<>();
 
     @SubscribeEvent
-    public static void serverTickEvent(ServerTickEvent.Post event){
-        tickPlayerInvulnerability();
+    public static void serverTickEvent(TickEvent.ServerTickEvent event){
+        if (event.phase == TickEvent.Phase.END) {
+            tickPlayerInvulnerability();
+        }
     }
 
     private static void tickPlayerInvulnerability(){
@@ -56,15 +58,16 @@ public class CatCutEvents {
     }
 
     @SubscribeEvent
-    public static void livingHurtEvent(EntityInvulnerabilityCheckEvent event){
+    public static void livingHurtEvent(LivingHurtEvent event){
         if (event.getEntity() instanceof ServerPlayer serverPlayer && isPlayerInvulnerable(serverPlayer)){
-            event.setInvulnerable(true);
+            event.setCanceled(true);
         }
     }
 
+
     @SubscribeEvent
     public static void targetEvent(LivingChangeTargetEvent event){
-        if (event.getNewAboutToBeSetTarget() instanceof ServerPlayer serverPlayer && isPlayerInvulnerable(serverPlayer)){
+        if (event.getNewTarget() instanceof ServerPlayer serverPlayer && isPlayerInvulnerable(serverPlayer)){
             event.setCanceled(true);
         }
     }
@@ -79,13 +82,6 @@ public class CatCutEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void entityAttributes(EntityAttributeCreationEvent event){
-        event.put(CataclysmCutscenes.MALEDICTUS_CUTSCENE.get(), Maledictus_Entity.maledictus().build());
-        event.put(CataclysmCutscenes.IGNIS_CUTSCENE_ENTITY.get(), Ignis_Entity.ignis().build());
-        event.put(CataclysmCutscenes.SCYLLA_CUTSCENE_ENTITY.get(), ScyllaCutsceneEntity.scylla().build());
-        event.put(CataclysmCutscenes.ANCIENT_REMNANT_CUTSCENE.get(), Ancient_Remnant_Entity.maledictus().build());
-        event.put(CataclysmCutscenes.LEVIATHAN_CUTSCENE.get(), The_Leviathan_Entity.leviathan().build());
-    }
+
 
 }

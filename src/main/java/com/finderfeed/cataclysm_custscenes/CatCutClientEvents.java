@@ -5,12 +5,13 @@ import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntityRen
 import com.finderfeed.cataclysm_custscenes.entities.leviathan.LeviathanCutsceneEntityRenderer;
 import com.finderfeed.cataclysm_custscenes.entities.maledictus.MaledictusCutsceneEntityRenderer;
 import com.finderfeed.cataclysm_custscenes.entities.scylla.ScyllaCutsceneRenderer;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-@EventBusSubscriber(modid = CataclysmCutscenes.MODID, value = Dist.CLIENT)
+
+@Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CatCutClientEvents {
 
     @SubscribeEvent

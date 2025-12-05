@@ -9,23 +9,23 @@ import com.finderfeed.cataclysm_custscenes.items.CatCutDebugStick;
 import com.mojang.serialization.Codec;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.registries.*;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.ModContainer;
 
 import java.util.function.Supplier;
 
 @Mod(CataclysmCutscenes.MODID)
 public class CataclysmCutscenes {
 
-    public static final String MODID = "cataclysmcutscenes";
+    public static final String MODID = "cinematiccataclysm";
 
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.createItems(MODID);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     public static final Supplier<Item> DEBUG_STICK = ITEMS.register("debug_stick",() -> new CatCutDebugStick(new Item.Properties()));
 
 
@@ -37,7 +37,8 @@ public class CataclysmCutscenes {
 
 
 
-    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MODID);
+
     public static final Supplier<EntityType<MaledictusCutsceneEntity>> MALEDICTUS_CUTSCENE = ENTITIES.register("maledictus_cutscene", ()-> EntityType.Builder.of(
                     MaledictusCutsceneEntity::new, MobCategory.MISC
             )
@@ -71,17 +72,19 @@ public class CataclysmCutscenes {
 
 
 
-    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPAWNED_BOSS_ONCE = ATTACHMENT_TYPES.register("spawned_boss_once",()->AttachmentType.builder(()->false)
-            .serialize(Codec.BOOL)
-            .build());
+//    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
+//    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> SPAWNED_BOSS_ONCE = ATTACHMENT_TYPES.register("spawned_boss_once",()->AttachmentType.builder(()->false)
+//            .serialize(Codec.BOOL)
+//            .build());
 
 
 
-    public CataclysmCutscenes(IEventBus modEventBus, ModContainer modContainer) {
-        ATTACHMENT_TYPES.register(modEventBus);
-        ENTITIES.register(modEventBus);
-        ITEMS.register(modEventBus);
+    public CataclysmCutscenes() {
+
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ENTITIES.register(bus);
+        ITEMS.register(bus);
     }
 
 

@@ -5,6 +5,7 @@ import com.finderfeed.cataclysm_custscenes.CataclysmCutscenes;
 import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntity;
 import com.finderfeed.fdlib.init.FDScreenEffects;
 import com.finderfeed.fdlib.nbt.AutoSerializable;
+import com.finderfeed.fdlib.network.FDPacketHandler;
 import com.finderfeed.fdlib.systems.cutscenes.CameraPos;
 import com.finderfeed.fdlib.systems.cutscenes.CutsceneData;
 import com.finderfeed.fdlib.systems.cutscenes.EasingType;
@@ -38,12 +39,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDestroyBlockEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkDirection;
+
 
 import java.util.EnumSet;
 import java.util.List;
@@ -298,7 +298,7 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
                 ));
 
                 for (var serverPlayer : FDTargetFinder.getEntitiesInCylinder(ServerPlayer.class, level(), this.position().add(0,-10,0),30,30)){
-                    PacketDistributor.sendToPlayer(serverPlayer,impactFramesPacket);
+                    FDPacketHandler.INSTANCE.sendTo(impactFramesPacket, serverPlayer.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 }
 
                 DefaultShakePacket.send((ServerLevel) level(), this.position(), 40, FDShakeData.builder()
@@ -398,107 +398,6 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
 
 
 
-    static class AnchorThrowGoal extends Goal {
-        private final Scylla_Entity entity;
-        private final int getattackstate;
-        private final int startattackstate;
-        private final float attackMinrange;
-        private final float attackMaxrange;
-        private final int attackseetick;
-        private final float random;
-        private boolean anchorrecall;
-
-        public AnchorThrowGoal(Scylla_Entity entity, int getattackstate, int startattackstate, float attackMinrange, float attackMaxrange, int attackseetick, float random) {
-            this.entity = entity;
-            this.getattackstate = getattackstate;
-            this.startattackstate = startattackstate;
-            this.attackMinrange = attackMinrange;
-            this.attackMaxrange = attackMaxrange;
-            this.attackseetick = attackseetick;
-            this.random = random;
-            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
-        }
-
-        public boolean canUse() {
-            LivingEntity target = this.entity.getTarget();
-            return this.entity.getAttackState() == this.getattackstate;
-        }
-
-        public void start() {
-            this.entity.setAttackState(this.startattackstate);
-            this.anchorrecall = false;
-            this.entity.setEye(true);
-        }
-
-        public boolean canContinueToUse() {
-            return this.entity.getAttackState() == this.startattackstate && this.entity.attackTicks <= 90;
-        }
-
-        public void tick() {
-            LivingEntity target = this.entity.getTarget();
-            if (this.entity.attackTicks < this.attackseetick && target != null) {
-                this.entity.getLookControl().setLookAt(target, 30.0F, 30.0F);
-                this.entity.lookAt(target, 30.0F, 30.0F);
-            } else {
-                this.entity.setYRot(this.entity.yRotO);
-            }
-
-            this.entity.getNavigation().stop();
-            if (this.entity.attackTicks == 20 && this.entity.getAnchor() == null) {
-                Scylla_Ceraunus_Entity throwntrident = new Scylla_Ceraunus_Entity(this.entity.level(), this.entity);
-                double theta = (double)this.entity.yBodyRot * 0.017453292519943295;
-                ++theta;
-                double vecX = Math.cos(theta);
-                double vecZ = Math.sin(theta);
-                double p0 = this.entity.getX() + vecX * 3.0;
-                double p1 = this.entity.getY() + (double)this.entity.getBbHeight() * 0.62;
-                double p2 = this.entity.getZ() + vecZ * 3.0;
-                double p3 = Math.sqrt(p0 * p0 + p2 * p2);
-                if (target != null) {
-                    p0 = target.getX() - this.entity.getX();
-                    p1 = target.getY(0.3333333333333333) - throwntrident.getY();
-                    p2 = target.getZ() - this.entity.getZ();
-                    p3 = Math.sqrt(p0 * p0 + p2 * p2);
-                }
-
-                throwntrident.setBaseDamage(CMConfig.ScyllaAnchordamage);
-                throwntrident.setPhase(this.entity.isPhase());
-                throwntrident.shoot(p0, p1 + p3 * 0.20000000298023224, p2, 2.0F, 0.0F);
-                throwntrident.setControllerUUID(this.entity.getUUID());
-                this.entity.setAnchorUUID(throwntrident.getUUID());
-                this.entity.level().addFreshEntity(throwntrident);
-            }
-
-            if (this.entity.attackTicks > 20) {
-                Entity weapon = this.entity.getAnchor();
-                if (weapon instanceof Scylla_Ceraunus_Entity) {
-                    Scylla_Ceraunus_Entity anchor = (Scylla_Ceraunus_Entity)weapon;
-                    if (anchor.getGrab()) {
-                        this.anchorrecall = true;
-                        this.stop();
-                    }
-                } else if (weapon == null) {
-                    this.anchorrecall = true;
-                    this.stop();
-                }
-            }
-
-        }
-
-        public void stop() {
-            if (this.anchorrecall) {
-                this.entity.setAttackState(14);
-            } else {
-                this.entity.setAttackState(0);
-            }
-
-            this.entity.setEye(false);
-        }
-
-        public boolean requiresUpdateEveryTick() {
-            return true;
-        }
-    }
 
 
 
@@ -527,10 +426,6 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
 
     }
 
-    @Override
-    public void push(Vec3 vector) {
-
-    }
 
     @Override
     public void push(double x, double y, double z) {
@@ -590,7 +485,7 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
         this.autoSave(compound);
     }
 
-    @EventBusSubscriber(modid = CataclysmCutscenes.MODID)
+    @Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class Events {
 
         @SubscribeEvent

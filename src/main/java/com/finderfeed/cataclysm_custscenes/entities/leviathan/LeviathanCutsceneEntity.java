@@ -28,20 +28,24 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDestroyBlockEvent;
+import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+
 
 public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements AutoSerializable {
 
     @SerializableField
     private Vec3 summonedPos;
 
+    private BlockPos homepos;
+
     public static void summon(Level level, Vec3 pos, BlockPos homePos){
         pos = pos.add(0,4,0);
         LeviathanCutsceneEntity leviathanCutsceneEntity = new LeviathanCutsceneEntity(CataclysmCutscenes.LEVIATHAN_CUTSCENE.get(), level);
 
         leviathanCutsceneEntity.summonedPos = pos;
+        leviathanCutsceneEntity.homepos = homePos;
 
         leviathanCutsceneEntity.setHomePos(homePos);
         leviathanCutsceneEntity.setDimensionType(level.dimension().location().toString());
@@ -81,7 +85,7 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
 
             Vec3 startCheck = summonedPos.add(v).add(0,i,0);
             Vec3 endCheck = startCheck.add(0,-40,0);
-            ClipContext clipContext = new ClipContext(startCheck,endCheck, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
+            ClipContext clipContext = new ClipContext(startCheck,endCheck, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
             var result = level().clip(clipContext);
             var location = result.getLocation();
             if (location.distanceTo(startCheck) > 2){
@@ -136,7 +140,7 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
 
         //LEVIATHAN_GRAB - open mouth
         if (!level().isClientSide){
-            if (this.summonedPos == null){
+            if (this.summonedPos == null || homepos == null){
                 this.remove(RemovalReason.DISCARDED);
                 return;
             }
@@ -190,7 +194,7 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
 
     private void removeAndSpawn(){
         The_Leviathan_Entity leviathanEntity = ModEntities.THE_LEVIATHAN.get().create(level());
-        leviathanEntity.setHomePos(this.getHomePos());
+        leviathanEntity.setHomePos(homepos);
         leviathanEntity.setPos(this.summonedPos);
         leviathanEntity.setDimensionType(level().dimension().location().toString());
         this.remove(RemovalReason.DISCARDED);
@@ -244,10 +248,6 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
 
     }
 
-    @Override
-    public void push(Vec3 vector) {
-
-    }
 
     @Override
     public void push(double x, double y, double z) {
@@ -301,15 +301,19 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.autoLoad(compound);
+        this.homepos = new BlockPos(compound.getInt("chomePosX"), compound.getInt("chomePosY"), compound.getInt("chomePosZ"));
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         this.autoSave(compound);
+        compound.putInt("chomePosX", homepos.getX());
+        compound.putInt("chomePosY", homepos.getY());
+        compound.putInt("chomePosZ", homepos.getZ());
     }
 
-    @EventBusSubscriber(modid = CataclysmCutscenes.MODID)
+    @Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID)
     public static class Events {
 
         @SubscribeEvent

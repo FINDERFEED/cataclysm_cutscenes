@@ -16,7 +16,7 @@ public class CatCutMixinHandler {
     public static void cursedTombstoneMixin(Level level, BlockPos pos, BlockState blockState, Cursed_tombstone_Entity entity, CallbackInfo ci){
 
         if (!level.isClientSide) {
-            if (!entity.getData(CataclysmCutscenes.SPAWNED_BOSS_ONCE)) {
+            if (!CatCutUtil.wasBossSpawned(entity)) {
                 Direction direction = blockState.getValue(Cursed_Tombstone_Block.FACING);
 
                 Vec3 dir = new Vec3(

@@ -1,5 +1,6 @@
 package com.finderfeed.cataclysm_custscenes.mixin;
 
+import com.finderfeed.cataclysm_custscenes.CatCutUtil;
 import com.finderfeed.cataclysm_custscenes.CataclysmCutscenes;
 import com.github.L_Ender.cataclysm.blockentities.Cursed_tombstone_Entity;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
@@ -23,7 +24,7 @@ public class MaledictusEntityMixin {
 
             if (!level.isClientSide) {
                 if (level.getBlockEntity(pos) instanceof Cursed_tombstone_Entity entity) {
-                    entity.setData(CataclysmCutscenes.SPAWNED_BOSS_ONCE, true);
+                    CatCutUtil.setBossWasSpawned(entity, true);
                     entity.setChanged();
                 }
             }

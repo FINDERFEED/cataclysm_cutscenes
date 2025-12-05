@@ -5,6 +5,7 @@ import com.finderfeed.cataclysm_custscenes.CataclysmCutscenes;
 import com.finderfeed.fdlib.init.FDScreenEffects;
 import com.finderfeed.fdlib.nbt.AutoSerializable;
 import com.finderfeed.fdlib.nbt.SerializableField;
+import com.finderfeed.fdlib.network.FDPacketHandler;
 import com.finderfeed.fdlib.systems.cutscenes.CameraPos;
 import com.finderfeed.fdlib.systems.cutscenes.CurveType;
 import com.finderfeed.fdlib.systems.cutscenes.CutsceneData;
@@ -39,10 +40,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDestroyBlockEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkDirection;
+
 
 import java.util.List;
 
@@ -51,12 +53,16 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
     @SerializableField
     private ProjectileMovementPath movementPath;
 
+    private BlockPos homepos;
+
     //Altar relative
     public static IgnisCutsceneEntity summon(Level level, Vec3 pos, BlockPos homePos){
 
         pos = pos.add(0,0.5,0);
 
         IgnisCutsceneEntity cutsceneEntity = new IgnisCutsceneEntity(CataclysmCutscenes.IGNIS_CUTSCENE_ENTITY.get(), level);
+
+        cutsceneEntity.homepos = homePos;
 
         cutsceneEntity.setPos(pos.add(0,5,0));
 
@@ -198,11 +204,11 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
                 AnimationHandler.INSTANCE.sendAnimationMessage(this, SMASH_IN_AIR);
 
                 for (var serverPlayer : FDTargetFinder.getEntitiesInCylinder(ServerPlayer.class, level(), this.position().add(0,-10,0),40,40)){
-                    PacketDistributor.sendToPlayer(serverPlayer,new DefaultShakePacket(FDShakeData.builder()
+                    FDPacketHandler.INSTANCE.sendTo(new DefaultShakePacket(FDShakeData.builder()
                             .inTime(20)
                             .outTime(10)
                             .amplitude(1f)
-                            .build()));
+                            .build()), serverPlayer.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 }
 
 
@@ -210,10 +216,10 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
                 AnimationHandler.INSTANCE.sendAnimationMessage(this, SMASH);
             }else if (tickCount == summoningRitualDuration + 22){
                 for (var serverPlayer : FDTargetFinder.getEntitiesInCylinder(ServerPlayer.class, level(), this.position().add(0,-10,0),40,40)){
-                    PacketDistributor.sendToPlayer(serverPlayer,new DefaultShakePacket(FDShakeData.builder()
+                    FDPacketHandler.INSTANCE.sendTo(new DefaultShakePacket(FDShakeData.builder()
                             .outTime(5)
                             .amplitude(1.5f)
-                            .build()));
+                            .build()), serverPlayer.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 }
             } else if (tickCount == summoningRitualDuration + 55) {
                 AnimationHandler.INSTANCE.sendAnimationMessage(this, HORIZONTAL_SWING_ATTACK);
@@ -229,16 +235,16 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
                 ));
 
                 for (var serverPlayer : FDTargetFinder.getEntitiesInCylinder(ServerPlayer.class, level(), this.position().add(0,-10,0),40,40)){
-                    PacketDistributor.sendToPlayer(serverPlayer,impactFramesPacket);
+                    FDPacketHandler.INSTANCE.sendTo(impactFramesPacket, serverPlayer.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 }
             } else if (tickCount == summoningRitualDuration){
                 this.level().playSound(null, this.getX(),this.getY(),this.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 4f, 0.75f);
                 this.level().playSound(null, this.getX(),this.getY(),this.getZ(), SoundEvents.TOTEM_USE, SoundSource.HOSTILE, 4f, 0.75f);
-                this.level().playSound(null, this.getX(),this.getY(),this.getZ(), ModSounds.IGNIS_HURT, SoundSource.HOSTILE, 4f, 1f);
+                this.level().playSound(null, this.getX(),this.getY(),this.getZ(), ModSounds.IGNIS_HURT.get(), SoundSource.HOSTILE, 4f, 1f);
             } else if (tickCount >= summoningRitualDuration + 155){
                 this.remove(RemovalReason.DISCARDED);
                 Ignis_Entity ignisEntity = ModEntities.IGNIS.get().create(level());
-                ignisEntity.setHomePos(this.getHomePos());
+                ignisEntity.setHomePos(homepos);
                 ignisEntity.setDimensionType(this.level().dimension().location().toString());
                 ignisEntity.setPos(this.position());
                 level().addFreshEntity(ignisEntity);
@@ -410,11 +416,6 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
     }
 
     @Override
-    public void push(Vec3 vector) {
-
-    }
-
-    @Override
     public void push(double x, double y, double z) {
 
     }
@@ -423,8 +424,6 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
     protected void pushEntities() {
 
     }
-
-
 
     @Override
     public boolean hurt(DamageSource source, float damage) {
@@ -461,20 +460,27 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
 
     }
 
-
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.autoLoad(compound);
+        this.homepos = new BlockPos(
+                compound.getInt("chomePosX"),
+                compound.getInt("chomePosY"),
+                compound.getInt("chomePosZ")
+        );
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         this.autoSave(compound);
+        compound.putInt("chomePosX", this.homepos.getX());
+        compound.putInt("chomePosY", this.homepos.getY());
+        compound.putInt("chomePosZ", this.homepos.getZ());
     }
 
-    @EventBusSubscriber(modid = CataclysmCutscenes.MODID)
+    @Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class Events {
 
         @SubscribeEvent

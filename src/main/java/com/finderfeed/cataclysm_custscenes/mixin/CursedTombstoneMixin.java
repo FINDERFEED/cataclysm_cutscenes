@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Cursed_tombstone_Entity.class)
 public class CursedTombstoneMixin {
 
-    @Inject(method = "commonTick", at = @At(value = "INVOKE", target = "Lcom/github/L_Ender/cataclysm/entity/effect/ScreenShake_Entity;ScreenShake(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/Vec3;FFII)V", ordinal = 0), cancellable = true)
+    @Inject(method = "commonTick", at = @At(value = "INVOKE", target = "Lcom/github/L_Ender/cataclysm/entity/effect/ScreenShake_Entity;ScreenShake(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/Vec3;FFII)V", ordinal = 0), cancellable = true, remap = false)
     private static void commonTick(Level level, BlockPos pos, BlockState blockState, Cursed_tombstone_Entity entity, CallbackInfo ci){
         CatCutMixinHandler.cursedTombstoneMixin(level, pos, blockState, entity, ci);
     }

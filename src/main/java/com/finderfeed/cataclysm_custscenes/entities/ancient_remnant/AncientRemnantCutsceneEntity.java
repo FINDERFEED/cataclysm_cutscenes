@@ -6,6 +6,7 @@ import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntity;
 import com.finderfeed.fdlib.init.FDScreenEffects;
 import com.finderfeed.fdlib.nbt.AutoSerializable;
 import com.finderfeed.fdlib.nbt.SerializableField;
+import com.finderfeed.fdlib.network.FDPacketHandler;
 import com.finderfeed.fdlib.systems.cutscenes.CameraPos;
 import com.finderfeed.fdlib.systems.cutscenes.CutsceneData;
 import com.finderfeed.fdlib.systems.cutscenes.EasingType;
@@ -34,10 +35,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDestroyBlockEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.PacketDistributor;
 
 public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity implements AutoSerializable {
 
@@ -73,7 +75,7 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
 
             Vec3 v = pos.add(0,10,0).add(cutsceneDirection.scale(30))
                     .add(cutsceneDirection.yRot(FDMathUtil.FPI / 2).scale(md * ((i + 2) / 2)));
-            ClipContext clipContext = new ClipContext(v,v.add(0,-50,0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
+            ClipContext clipContext = new ClipContext(v,v.add(0,-50,0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
             var result = level.clip(clipContext);
             if (result.getType() != HitResult.Type.MISS && result.getLocation().distanceTo(v) > 1){
                 var player = inSurvival.get(i);
@@ -132,7 +134,7 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
 
             Vec3 endVec = basePos.add(checkVec.scale(100));
 
-            ClipContext clipContext = new ClipContext(basePos,endVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
+            ClipContext clipContext = new ClipContext(basePos,endVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
             var result = level.clip(clipContext);
             Vec3 location = result.getLocation();
             Vec3 between = location.subtract(basePos);
@@ -203,7 +205,7 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
                             ;
 
                     Vec3 endCheck = offsetPos.add(0,40,0);
-                    ClipContext clipContext = new ClipContext(offsetPos, endCheck, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
+                    ClipContext clipContext = new ClipContext(offsetPos, endCheck, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
                     var result = level().clip(clipContext);
                     Vec3 location = result.getLocation();
                     Vec3 between = endCheck.subtract(location);
@@ -221,10 +223,13 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
         }else if (this.tickCount == 95){
             Vec3 shakeStart = this.position().add(cutsceneDirection.scale(30)).add(0,-5,0);
             for (var player : FDTargetFinder.getEntitiesInCylinder(ServerPlayer.class, level(), shakeStart, 30, 40)){
-                PacketDistributor.sendToPlayer(player, new DefaultShakePacket(FDShakeData.builder()
+
+                FDPacketHandler.INSTANCE.sendTo(new DefaultShakePacket(FDShakeData.builder()
                         .amplitude(1f)
                         .outTime(60)
-                        .build()));
+                        .build()), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+
+
             }
         }
 
@@ -286,10 +291,6 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
 
     }
 
-    @Override
-    public void push(Vec3 vector) {
-
-    }
 
     @Override
     public void push(double x, double y, double z) {
@@ -351,7 +352,7 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
         this.autoSave(compound);
     }
 
-    @EventBusSubscriber(modid = CataclysmCutscenes.MODID)
+    @Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class Events {
 
         @SubscribeEvent

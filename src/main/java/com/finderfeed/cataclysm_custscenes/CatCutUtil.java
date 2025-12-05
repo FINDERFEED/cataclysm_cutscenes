@@ -5,6 +5,7 @@ import com.finderfeed.fdlib.systems.cutscenes.CutsceneData;
 import com.finderfeed.fdlib.util.FDTargetFinder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -30,5 +31,12 @@ public class CatCutUtil {
         return startedCutsceneFor;
     }
 
+    public static void setBossWasSpawned(BlockEntity block, boolean spawned){
+        block.getPersistentData().putBoolean("bossWasSpawnedOnce", spawned);
+    }
+
+    public static boolean wasBossSpawned(BlockEntity block){
+        return block.getPersistentData().getBoolean("bossWasSpawnedOnce");
+    }
 
 }

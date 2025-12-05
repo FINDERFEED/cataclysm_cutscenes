@@ -10,9 +10,11 @@ import com.finderfeed.fdlib.systems.cutscenes.CutsceneData;
 import com.finderfeed.fdlib.systems.cutscenes.EasingType;
 import com.finderfeed.fdlib.systems.screen.screen_effect.instances.datas.ScreenColorData;
 import com.finderfeed.fdlib.util.ProjectileMovementPath;
+import com.finderfeed.fdlib.util.math.FDMathUtil;
 import com.github.L_Ender.cataclysm.config.CMConfig;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
+import com.github.L_Ender.cataclysm.init.ModBlocks;
 import com.github.L_Ender.cataclysm.init.ModEntities;
 import com.github.L_Ender.cataclysm.init.ModSounds;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -23,6 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -35,9 +38,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDestroyBlockEvent;
+
+import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 
 public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoSerializable{
@@ -87,15 +91,47 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
         maledictus.movementPath = createMovementPath(pos, direction);
 
 
-        maledictus.setPos(maledictus.movementPath.getPositions().getFirst());
+        maledictus.setPos(maledictus.movementPath.getPositions().get(0));
         maledictus.lookAt(EntityAnchorArgument.Anchor.FEET, pos.add(direction.scale(200)));
 
         level.addFreshEntity(maledictus);
 
 
         float cutsceneStartRadius = 50;
-        CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, cutsceneStartRadius, 200, createCutsceneData(pos, direction));
+        var affected = CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, cutsceneStartRadius, 200, createCutsceneData(pos, direction));
 
+        var inSurvival = affected.stream().filter((player)->{
+            return true || !player.isCreative() && !player.isSpectator();
+        }).toList();
+
+        for (int i = 0; i < inSurvival.size(); i++){
+
+            int foffset = i / 4;
+            int soffset = i % 4;
+
+            int md = soffset % 2 == 0 ? 1 : -1;
+
+            Vec3 offs = direction.scale(30 + foffset)
+                    .add(direction.yRot(FDMathUtil.FPI / 2).scale((soffset + 3) / 2 * md));
+
+            Vec3 tppos = pos.add(offs);
+
+            ServerPlayer serverPlayer = inSurvival.get(i);
+            serverPlayer.teleportTo(tppos.x,tppos.y,tppos.z);
+            serverPlayer.lookAt(EntityAnchorArgument.Anchor.FEET, pos);
+
+        }
+
+        for (int x = -5; x <= 5; x++){
+            for (int y = -5; y <= 5; y++){
+                for (int z = -5; z <= 5; z++){
+                    BlockPos p = homeAndTombstonePos.offset(x,18 + y,z);
+                    if (level.getBlockState(p).is(ModBlocks.POINTED_ICICLE.get())){
+                        level.destroyBlock(p, false);
+                    }
+                }
+            }
+        }
 
         return maledictus;
     }
@@ -225,7 +261,7 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
             if (afterStartFlyTick >= 22 && afterStartFlyTick <= 25){
                 if (afterStartFlyTick == 22){
-                    level().playSound(null,this.getX(),this.getY(),this.getZ(),  ModSounds.EXPLOSION.get(), SoundSource.HOSTILE, 2F, 0.75F + this.getRandom().nextFloat() * 0.1F);
+                    level().playSound(null,this.getX(),this.getY(),this.getZ(),  SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 2F, 0.75F + this.getRandom().nextFloat() * 0.1F);
                 }
                 this.smashEffect(2, afterStartFlyTick - 21, 2.5f);
             }
@@ -264,8 +300,8 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
             this.setAttackState(24);
         }
 
-        Vec3 first = movementPath.getPositions().getFirst();
-        Vec3 last = movementPath.getPositions().getLast();
+        Vec3 first = movementPath.getPositions().get(0);
+        Vec3 last = movementPath.getPositions().get(movementPath.getPositions().size() - 1);
         Vec3 b = last.subtract(first).multiply(1,0,1);
         Vec3 lookAt = last.add(b.scale(200));
         this.lookAt(EntityAnchorArgument.Anchor.EYES, lookAt);
@@ -274,7 +310,7 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
             movementPath.tick(this);
             if (movementPath.isFinished()) {
                 if (!this.getDeltaMovement().equals(Vec3.ZERO)) {
-                    Vec3 lastPos = movementPath.getPositions().getLast();
+                    Vec3 lastPos = movementPath.getPositions().get(movementPath.getPositions().size() - 1);
                     this.teleportTo(lastPos.x, lastPos.y, lastPos.z);
                 }
                 this.setDeltaMovement(Vec3.ZERO);
@@ -324,11 +360,6 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
     @Override
     public void push(Entity entityIn) {
-
-    }
-
-    @Override
-    public void push(Vec3 vector) {
 
     }
 
@@ -432,7 +463,7 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
     }
 
-    @EventBusSubscriber(modid = CataclysmCutscenes.MODID)
+    @Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class Events {
 
         @SubscribeEvent
