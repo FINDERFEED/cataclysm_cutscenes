@@ -14,8 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Pseudo
-@Mixin(value = Scylla_Entity.class, remap = false)
+@Mixin(value = Scylla_Entity.class)
 public class ScyllaEntityMixin {
 
     @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lcom/github/L_Ender/cataclysm/entity/InternalAnimationMonster/IABossMonsters/Scylla/Scylla_Entity;setAct(Z)V", shift = At.Shift.AFTER), require = 0)

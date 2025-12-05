@@ -14,8 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Pseudo
-@Mixin(value = Ancient_Remnant_Entity.class, remap = false)
+@Mixin(value = Ancient_Remnant_Entity.class)
 public class AncientRemnantMixin {
 
     @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lcom/github/L_Ender/cataclysm/entity/InternalAnimationMonster/IABossMonsters/Ancient_Remnant/Ancient_Remnant_Entity;setNecklace(Z)V", shift = At.Shift.BEFORE), require = 0)
