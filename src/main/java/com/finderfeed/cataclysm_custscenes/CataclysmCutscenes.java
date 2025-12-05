@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 @Mod(CataclysmCutscenes.MODID)
 public class CataclysmCutscenes {
 
-    public static final String MODID = "cataclysmcutscenes";
+    public static final String MODID = "cinematiccataclysm";
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.createItems(MODID);
     public static final Supplier<Item> DEBUG_STICK = ITEMS.register("debug_stick",() -> new CatCutDebugStick(new Item.Properties()));
