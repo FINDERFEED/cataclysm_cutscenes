@@ -235,7 +235,7 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
         }else if (tickCount == 110){
             Scylla_Ceraunus_Entity scyllaAnchor = new Scylla_Ceraunus_Entity(this.level(), this);
             scyllaAnchor.setControllerUUID(this.getUUID());
-            scyllaAnchor.shoot(0,0.35,1, 2f, 0.0f);
+            scyllaAnchor.shoot(0,0.25,1, 2f, 0.0f);
             this.setAnchorUUID(scyllaAnchor.getUUID());
             level().addFreshEntity(scyllaAnchor);
         }else if (this.tickCount == 126){

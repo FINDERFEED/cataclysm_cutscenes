@@ -277,14 +277,14 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
             }
 
             if (tickCount < summoningRitualDuration) {
-                level().addParticle(ParticleTypes.LAVA,
+                level().addParticle(ParticleTypes.LAVA,true,
                         this.getX() + random.nextFloat() - 0.5,
                         this.getY() + random.nextFloat() - 0.5 + 0.5,
                         this.getZ() + random.nextFloat() - 0.5,
                         0, 0, 0);
 
 
-                level().addParticle(ParticleTypes.FLAME,
+                level().addParticle(ParticleTypes.FLAME,true,
                         this.getX() + random.nextFloat() - 0.5,
                         this.getY() + random.nextFloat() - 0.5 + 0.5,
                         this.getZ() + random.nextFloat() - 0.5,
@@ -320,7 +320,7 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
 
             Vec3 ppos = this.position().add(0,height,0).add(v);
 
-            level().addParticle(ParticleTypes.FLAME, ppos.x,ppos.y,ppos.z,0,0,0);
+            level().addParticle(ParticleTypes.FLAME, true, ppos.x,ppos.y,ppos.z,0,0,0);
 
         }
     }
