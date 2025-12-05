@@ -10,9 +10,11 @@ import com.finderfeed.fdlib.systems.cutscenes.CutsceneData;
 import com.finderfeed.fdlib.systems.cutscenes.EasingType;
 import com.finderfeed.fdlib.systems.screen.screen_effect.instances.datas.ScreenColorData;
 import com.finderfeed.fdlib.util.ProjectileMovementPath;
+import com.finderfeed.fdlib.util.math.FDMathUtil;
 import com.github.L_Ender.cataclysm.config.CMConfig;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
+import com.github.L_Ender.cataclysm.init.ModBlocks;
 import com.github.L_Ender.cataclysm.init.ModEntities;
 import com.github.L_Ender.cataclysm.init.ModSounds;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -94,7 +96,40 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
 
         float cutsceneStartRadius = 50;
-        CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, cutsceneStartRadius, 200, createCutsceneData(pos, direction));
+        var affected = CatCutUtil.startCutsceneForPlayers((ServerLevel) level, pos, cutsceneStartRadius, 200, createCutsceneData(pos, direction));
+
+        var inSurvival = affected.stream().filter((player)->{
+            return !player.isCreative() && !player.isSpectator();
+        }).toList();
+
+        for (int i = 0; i < inSurvival.size(); i++){
+
+            int foffset = i / 4;
+            int soffset = i % 4;
+
+            int md = soffset % 2 == 0 ? 1 : -1;
+
+            Vec3 offs = direction.scale(30 + foffset)
+                    .add(direction.yRot(FDMathUtil.FPI / 2).scale((soffset + 3) / 2 * md));
+
+            Vec3 tppos = pos.add(offs);
+
+            ServerPlayer serverPlayer = inSurvival.get(i);
+            serverPlayer.teleportTo(tppos.x,tppos.y,tppos.z);
+            serverPlayer.lookAt(EntityAnchorArgument.Anchor.FEET, pos);
+
+        }
+
+        for (int x = -5; x <= 5; x++){
+            for (int y = -5; y <= 5; y++){
+                for (int z = -5; z <= 5; z++){
+                    BlockPos p = homeAndTombstonePos.offset(x,18 + y,z);
+                    if (level.getBlockState(p).is(ModBlocks.POINTED_ICICLE.get())){
+                        level.destroyBlock(p, false);
+                    }
+                }
+            }
+        }
 
 
         return maledictus;
