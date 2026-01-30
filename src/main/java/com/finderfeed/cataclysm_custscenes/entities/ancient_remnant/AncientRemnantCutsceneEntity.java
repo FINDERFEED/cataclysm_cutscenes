@@ -20,6 +20,7 @@ import com.github.L_Ender.cataclysm.init.ModEntities;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -44,7 +45,7 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
     @SerializableField
     private Vec3 cutsceneDirection;
 
-    public static void summon(Level level, Vec3 pos, BlockPos homePos){
+    public static void summon(Level level, Vec3 pos, GlobalPos homePos){
 
         AncientRemnantCutsceneEntity cutsceneEntity = new AncientRemnantCutsceneEntity(CataclysmCutscenes.ANCIENT_REMNANT_CUTSCENE.get(), level);
 
@@ -64,7 +65,7 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
         var affected = CatCutUtil.startCutsceneForPlayersCylinder((ServerLevel) level, pos.add(0,-10,0).add(cutsceneDirection.scale(30)),40, 35, 200, cutscene);
 
         var inSurvival = affected.stream().filter((player)->{
-            return true || !player.isCreative() && !player.isSpectator();
+            return !player.isCreative() && !player.isSpectator();
         }).toList();
 
         for (int i = 0; i < inSurvival.size(); i++){
@@ -232,7 +233,6 @@ public class AncientRemnantCutsceneEntity extends Ancient_Remnant_Entity impleme
             this.remove(RemovalReason.DISCARDED);
             Ancient_Remnant_Entity ancientRemnantEntity = ModEntities.ANCIENT_REMNANT.get().create(level());
             ancientRemnantEntity.setHomePos(this.getHomePos());
-            ancientRemnantEntity.setDimensionType(level().dimension().location().toString());
             ancientRemnantEntity.setPos(this.position());
             ancientRemnantEntity.setNecklace(true);
             level().addFreshEntity(ancientRemnantEntity);

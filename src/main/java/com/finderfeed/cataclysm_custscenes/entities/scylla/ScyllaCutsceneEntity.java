@@ -14,13 +14,13 @@ import com.finderfeed.fdlib.systems.screen.screen_effect.instances.datas.ScreenC
 import com.finderfeed.fdlib.systems.shake.DefaultShakePacket;
 import com.finderfeed.fdlib.systems.shake.FDShakeData;
 import com.finderfeed.fdlib.util.FDTargetFinder;
-import com.github.L_Ender.cataclysm.config.CMConfig;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Scylla.Scylla_Ceraunus_Entity;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Scylla.Scylla_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
 import com.github.L_Ender.cataclysm.init.ModEntities;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,7 +50,7 @@ import java.util.List;
 
 public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializable {
 
-    public static void summon(Level level, Vec3 pos, BlockPos homePos){
+    public static void summon(Level level, Vec3 pos, GlobalPos homePos){
 
         ScyllaCutsceneEntity entity = new ScyllaCutsceneEntity(CataclysmCutscenes.SCYLLA_CUTSCENE_ENTITY.get(), level);
 
@@ -317,7 +317,6 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
             Scylla_Entity scyllaEntity = ModEntities.SCYLLA.get().create(level());
             scyllaEntity.setPos(this.position());
             scyllaEntity.setHomePos(this.getHomePos());
-            scyllaEntity.setDimensionType(level().dimension().location().toString());
             this.remove(RemovalReason.DISCARDED);
             scyllaEntity.setAct(true);
             level().addFreshEntity(scyllaEntity);
@@ -461,7 +460,7 @@ public class ScyllaCutsceneEntity extends Scylla_Entity implements AutoSerializa
                     p3 = Math.sqrt(p0 * p0 + p2 * p2);
                 }
 
-                throwntrident.setBaseDamage(CMConfig.ScyllaAnchordamage);
+//                throwntrident.setBaseDamage(CMConfig.ScyllaAnchordamage);
                 throwntrident.setPhase(this.entity.isPhase());
                 throwntrident.shoot(p0, p1 + p3 * 0.20000000298023224, p2, 2.0F, 0.0F);
                 throwntrident.setControllerUUID(this.entity.getUUID());

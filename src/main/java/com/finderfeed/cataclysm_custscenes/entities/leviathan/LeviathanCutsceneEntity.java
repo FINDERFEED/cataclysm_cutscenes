@@ -15,6 +15,7 @@ import com.github.L_Ender.cataclysm.init.ModSounds;
 import com.github.L_Ender.lionfishapi.server.animation.AnimationHandler;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,8 +44,7 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
 
         leviathanCutsceneEntity.summonedPos = pos;
 
-        leviathanCutsceneEntity.setHomePos(homePos);
-        leviathanCutsceneEntity.setDimensionType(level.dimension().location().toString());
+        leviathanCutsceneEntity.setHomePos(GlobalPos.of(level.dimension(), homePos));
 
         Vec3 cutsceneEntityPos = leviathanCutsceneEntity.calculateSwimmingPos(0,220);
         leviathanCutsceneEntity.setPos(cutsceneEntityPos);
@@ -192,7 +192,6 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
         The_Leviathan_Entity leviathanEntity = ModEntities.THE_LEVIATHAN.get().create(level());
         leviathanEntity.setHomePos(this.getHomePos());
         leviathanEntity.setPos(this.summonedPos);
-        leviathanEntity.setDimensionType(level().dimension().location().toString());
         this.remove(RemovalReason.DISCARDED);
         level().addFreshEntity(leviathanEntity);
     }

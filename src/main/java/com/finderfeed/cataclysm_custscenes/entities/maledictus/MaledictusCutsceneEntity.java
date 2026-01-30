@@ -11,7 +11,6 @@ import com.finderfeed.fdlib.systems.cutscenes.EasingType;
 import com.finderfeed.fdlib.systems.screen.screen_effect.instances.datas.ScreenColorData;
 import com.finderfeed.fdlib.util.ProjectileMovementPath;
 import com.finderfeed.fdlib.util.math.FDMathUtil;
-import com.github.L_Ender.cataclysm.config.CMConfig;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
 import com.github.L_Ender.cataclysm.init.ModBlocks;
@@ -20,6 +19,7 @@ import com.github.L_Ender.cataclysm.init.ModSounds;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -80,12 +80,9 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
         direction = direction.multiply(1,0,1).normalize();
 
-        maledictus.setHomePos(homeAndTombstonePos);
-        maledictus.setTombstonePos(homeAndTombstonePos);
+        maledictus.setHomePos(GlobalPos.of(level.dimension(), homeAndTombstonePos));
         maledictus.setTombstoneDirection(tombstoneDirection);
-        ResourceLocation dimLoc = level.dimension().location();
 
-        maledictus.setDimensionType(dimLoc.toString());
         maledictus.movementPath = createMovementPath(pos, direction);
 
 
@@ -282,10 +279,7 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
                 maledictus.setPos(this.getX(),this.getY(),this.getZ());
                 maledictus.setHomePos(this.getHomePos());
-                maledictus.setTombstonePos(this.getHomePos());
                 maledictus.setTombstoneDirection(this.getTombstoneDirection());
-                ResourceLocation dimLoc = level().dimension().location();
-                maledictus.setDimensionType(dimLoc.toString());
 
                 level().addFreshEntity(maledictus);
 

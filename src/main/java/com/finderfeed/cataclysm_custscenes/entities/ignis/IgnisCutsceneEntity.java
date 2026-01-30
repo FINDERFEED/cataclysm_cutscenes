@@ -24,6 +24,7 @@ import com.github.L_Ender.cataclysm.init.ModSounds;
 import com.github.L_Ender.lionfishapi.server.animation.AnimationHandler;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -62,7 +63,7 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
 
         cutsceneEntity.movementPath = createPath(pos);
 
-        cutsceneEntity.setHomePos(homePos);
+        cutsceneEntity.setHomePos(GlobalPos.of(level.dimension(), homePos));
 
         cutsceneEntity.lookAt(EntityAnchorArgument.Anchor.FEET, pos.add(0,0,-100));
 
@@ -239,7 +240,6 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
                 this.remove(RemovalReason.DISCARDED);
                 Ignis_Entity ignisEntity = ModEntities.IGNIS.get().create(level());
                 ignisEntity.setHomePos(this.getHomePos());
-                ignisEntity.setDimensionType(this.level().dimension().location().toString());
                 ignisEntity.setPos(this.position());
                 level().addFreshEntity(ignisEntity);
             }

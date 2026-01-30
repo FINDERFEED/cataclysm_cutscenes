@@ -77,10 +77,10 @@ dependencies {
 
     implementation "net.neoforged:neoforge:${neo_version}"
 
-    implementation "curse.maven:lendercataclysm-551586:6906997"
+    implementation "curse.maven:lendercataclysm-551586:7550008"
     implementation "curse.maven:lionfish-api-1001614:6168249"
     implementation "curse.maven:curios-309927:6401872"
-    implementation "curse.maven:fdlib-1271749:7061918"
+    implementation "curse.maven:fdlib-1271749:7429840"
 
     implementation fileTree(dir: 'build/libraries', include: ['*.jar'])
 
