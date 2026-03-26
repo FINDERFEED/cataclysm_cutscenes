@@ -15,7 +15,11 @@ import com.github.L_Ender.cataclysm.init.ModSounds;
 import com.github.L_Ender.lionfishapi.server.animation.AnimationHandler;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -38,9 +42,9 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
     @SerializableField
     private Vec3 summonedPos;
 
-    private BlockPos homepos;
+    private GlobalPos homepos;
 
-    public static void summon(Level level, Vec3 pos, BlockPos homePos){
+    public static void summon(Level level, Vec3 pos, GlobalPos homePos){
         pos = pos.add(0,4,0);
         LeviathanCutsceneEntity leviathanCutsceneEntity = new LeviathanCutsceneEntity(CataclysmCutscenes.LEVIATHAN_CUTSCENE.get(), level);
 
@@ -48,7 +52,6 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
         leviathanCutsceneEntity.homepos = homePos;
 
         leviathanCutsceneEntity.setHomePos(homePos);
-        leviathanCutsceneEntity.setDimensionType(level.dimension().location().toString());
 
         Vec3 cutsceneEntityPos = leviathanCutsceneEntity.calculateSwimmingPos(0,220);
         leviathanCutsceneEntity.setPos(cutsceneEntityPos);
@@ -196,7 +199,6 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
         The_Leviathan_Entity leviathanEntity = ModEntities.THE_LEVIATHAN.get().create(level());
         leviathanEntity.setHomePos(homepos);
         leviathanEntity.setPos(this.summonedPos);
-        leviathanEntity.setDimensionType(level().dimension().location().toString());
         this.remove(RemovalReason.DISCARDED);
         level().addFreshEntity(leviathanEntity);
     }
@@ -301,16 +303,26 @@ public class LeviathanCutsceneEntity extends The_Leviathan_Entity implements Aut
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.autoLoad(compound);
-        this.homepos = new BlockPos(compound.getInt("chomePosX"), compound.getInt("chomePosY"), compound.getInt("chomePosZ"));
+
+        String dimension = compound.getString("homeDimension");
+        BlockPos bpos = new BlockPos(
+                compound.getInt("chomePosX"),
+                compound.getInt("chomePosY"),
+                compound.getInt("chomePosZ")
+        );
+        ResourceKey<Level> dim = ResourceKey.create(Registries.DIMENSION, ResourceLocation.tryParse(dimension));
+        this.homepos = GlobalPos.of(dim, bpos);
+
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         this.autoSave(compound);
-        compound.putInt("chomePosX", homepos.getX());
-        compound.putInt("chomePosY", homepos.getY());
-        compound.putInt("chomePosZ", homepos.getZ());
+        compound.putString("homeDimension", this.homepos.dimension().toString());
+        compound.putInt("chomePosX", this.homepos.pos().getX());
+        compound.putInt("chomePosY", this.homepos.pos().getY());
+        compound.putInt("chomePosZ", this.homepos.pos().getZ());
     }
 
     @Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID)

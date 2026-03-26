@@ -5,6 +5,7 @@ import com.github.L_Ender.cataclysm.blockentities.Cursed_tombstone_Entity;
 import com.github.L_Ender.cataclysm.blocks.Cursed_Tombstone_Block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +26,8 @@ public class CatCutMixinHandler {
                         direction.getStepZ()
                 );
 
-                MaledictusCutsceneEntity maledictusCutsceneEntity = MaledictusCutsceneEntity.summon(level, pos.getCenter().add(0, -0.5, 0), dir, pos, direction);
+
+                MaledictusCutsceneEntity maledictusCutsceneEntity = MaledictusCutsceneEntity.summon(level, pos.getCenter().add(0, -0.5, 0), dir, GlobalPos.of(level.dimension(),pos), direction);
 
                 level.destroyBlock(pos, false);
                 ci.cancel();

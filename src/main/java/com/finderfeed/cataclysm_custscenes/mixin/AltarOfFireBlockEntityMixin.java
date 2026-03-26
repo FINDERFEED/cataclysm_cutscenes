@@ -5,6 +5,7 @@ import com.finderfeed.cataclysm_custscenes.CataclysmCutscenes;
 import com.finderfeed.cataclysm_custscenes.entities.ignis.IgnisCutsceneEntity;
 import com.github.L_Ender.cataclysm.blockentities.AltarOfFire_Block_Entity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +28,7 @@ public class AltarOfFireBlockEntityMixin {
         if (!level.isClientSide){
             if (!CatCutUtil.wasBossSpawned(tile)){
                 summoningthis = false;
-                IgnisCutsceneEntity ignisCutsceneEntity = IgnisCutsceneEntity.summon(level, pos.getCenter(), pos);
+                IgnisCutsceneEntity ignisCutsceneEntity = IgnisCutsceneEntity.summon(level, pos.getCenter(), GlobalPos.of(tile.getLevel().dimension(),pos));
                 tile.setItem(0, ItemStack.EMPTY);
                 CatCutUtil.setBossWasSpawned(tile, true);
                 tile.setChanged();

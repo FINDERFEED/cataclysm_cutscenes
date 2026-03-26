@@ -11,7 +11,6 @@ import com.finderfeed.fdlib.systems.cutscenes.EasingType;
 import com.finderfeed.fdlib.systems.screen.screen_effect.instances.datas.ScreenColorData;
 import com.finderfeed.fdlib.util.ProjectileMovementPath;
 import com.finderfeed.fdlib.util.math.FDMathUtil;
-import com.github.L_Ender.cataclysm.config.CMConfig;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.Maledictus.Maledictus_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
 import com.github.L_Ender.cataclysm.init.ModBlocks;
@@ -20,6 +19,7 @@ import com.github.L_Ender.cataclysm.init.ModSounds;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -76,18 +76,16 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
     private int afterPathTicks = 0;
 
-    public static MaledictusCutsceneEntity summon(Level level, Vec3 pos, Vec3 direction, BlockPos homeAndTombstonePos, Direction tombstoneDirection){
+    public static MaledictusCutsceneEntity summon(Level level, Vec3 pos, Vec3 direction, GlobalPos homeAndTombstonePos, Direction tombstoneDirection){
 
         MaledictusCutsceneEntity maledictus = new MaledictusCutsceneEntity(CataclysmCutscenes.MALEDICTUS_CUTSCENE.get(), level);
 
         direction = direction.multiply(1,0,1).normalize();
 
         maledictus.setHomePos(homeAndTombstonePos);
-        maledictus.setTombstonePos(homeAndTombstonePos);
         maledictus.setTombstoneDirection(tombstoneDirection);
         ResourceLocation dimLoc = level.dimension().location();
 
-        maledictus.setDimensionType(dimLoc.toString());
         maledictus.movementPath = createMovementPath(pos, direction);
 
 
@@ -125,7 +123,7 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
         for (int x = -5; x <= 5; x++){
             for (int y = -5; y <= 5; y++){
                 for (int z = -5; z <= 5; z++){
-                    BlockPos p = homeAndTombstonePos.offset(x,18 + y,z);
+                    BlockPos p = homeAndTombstonePos.pos().offset(x,18 + y,z);
                     if (level.getBlockState(p).is(ModBlocks.POINTED_ICICLE.get())){
                         level.destroyBlock(p, false);
                     }
@@ -283,10 +281,7 @@ public class MaledictusCutsceneEntity extends Maledictus_Entity implements AutoS
 
                 maledictus.setPos(this.getX(),this.getY(),this.getZ());
                 maledictus.setHomePos(this.getHomePos());
-                maledictus.setTombstonePos(this.getHomePos());
                 maledictus.setTombstoneDirection(this.getTombstoneDirection());
-                ResourceLocation dimLoc = level().dimension().location();
-                maledictus.setDimensionType(dimLoc.toString());
 
                 level().addFreshEntity(maledictus);
 

@@ -120,10 +120,10 @@ dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 
 
-    implementation fg.deobf("curse.maven:lendercataclysm-551586:6906993")
+    implementation fg.deobf("curse.maven:lendercataclysm-551586:7816790")
     implementation fg.deobf("curse.maven:lionfish-api-1001614:5922047")
     implementation fg.deobf("curse.maven:curios-309927:6418456")
-    implementation fg.deobf("curse.maven:fdlib-1271749:7061856")
+    implementation fg.deobf("curse.maven:fdlib-1271749:7653103")
 
 }
 

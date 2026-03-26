@@ -25,9 +25,13 @@ import com.github.L_Ender.cataclysm.init.ModSounds;
 import com.github.L_Ender.lionfishapi.server.animation.AnimationHandler;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -53,10 +57,10 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
     @SerializableField
     private ProjectileMovementPath movementPath;
 
-    private BlockPos homepos;
+    private GlobalPos homepos;
 
     //Altar relative
-    public static IgnisCutsceneEntity summon(Level level, Vec3 pos, BlockPos homePos){
+    public static IgnisCutsceneEntity summon(Level level, Vec3 pos, GlobalPos homePos){
 
         pos = pos.add(0,0.5,0);
 
@@ -245,7 +249,6 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
                 this.remove(RemovalReason.DISCARDED);
                 Ignis_Entity ignisEntity = ModEntities.IGNIS.get().create(level());
                 ignisEntity.setHomePos(homepos);
-                ignisEntity.setDimensionType(this.level().dimension().location().toString());
                 ignisEntity.setPos(this.position());
                 level().addFreshEntity(ignisEntity);
             }
@@ -464,20 +467,25 @@ public class IgnisCutsceneEntity extends Ignis_Entity implements AutoSerializabl
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.autoLoad(compound);
-        this.homepos = new BlockPos(
+
+        String dimension = compound.getString("homeDimension");
+        BlockPos bpos = new BlockPos(
                 compound.getInt("chomePosX"),
                 compound.getInt("chomePosY"),
                 compound.getInt("chomePosZ")
         );
+        ResourceKey<Level> dim = ResourceKey.create(Registries.DIMENSION, ResourceLocation.tryParse(dimension));
+        this.homepos = GlobalPos.of(dim, bpos);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         this.autoSave(compound);
-        compound.putInt("chomePosX", this.homepos.getX());
-        compound.putInt("chomePosY", this.homepos.getY());
-        compound.putInt("chomePosZ", this.homepos.getZ());
+        compound.putString("homeDimension", this.homepos.dimension().toString());
+        compound.putInt("chomePosX", this.homepos.pos().getX());
+        compound.putInt("chomePosY", this.homepos.pos().getY());
+        compound.putInt("chomePosZ", this.homepos.pos().getZ());
     }
 
     @Mod.EventBusSubscriber(modid = CataclysmCutscenes.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)

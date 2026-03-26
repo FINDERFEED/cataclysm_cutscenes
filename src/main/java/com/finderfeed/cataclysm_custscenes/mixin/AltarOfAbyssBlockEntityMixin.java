@@ -5,6 +5,7 @@ import com.finderfeed.cataclysm_custscenes.CataclysmCutscenes;
 import com.finderfeed.cataclysm_custscenes.entities.leviathan.LeviathanCutsceneEntity;
 import com.github.L_Ender.cataclysm.blockentities.AltarOfAbyss_Block_Entity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +29,7 @@ public class AltarOfAbyssBlockEntityMixin {
                 tile.setItem(0, ItemStack.EMPTY);
                 tile.setChanged();
                 Vec3 summonPos = new Vec3((double) ((float) pos.getX() + 0.5F), (double) (pos.getY() + 3), (double) ((float) pos.getZ() + 0.5F));
-                LeviathanCutsceneEntity.summon(level, summonPos, pos);
+                LeviathanCutsceneEntity.summon(level, summonPos, GlobalPos.of(level.dimension(), pos));
 
                 level.sendBlockUpdated(pos, state, state, 3);
                 ci.cancel();
